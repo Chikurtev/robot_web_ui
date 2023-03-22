@@ -1,0 +1,8 @@
+<launch>
+
+   <node args="--respawnable" name="eddiebot_node" output="screen" pkg="eddiebot_node" respawn="true" type="eddiebot_node.py">
+    <param name="bonus" value="false" />
+    <param name="update_rate" value="30.0" />
+  </node> 
+  
+</launch>

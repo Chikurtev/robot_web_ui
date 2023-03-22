@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block nav_setup %}class="active"{% endblock %}
+
+{% block title %}Setup | {% endblock %}
+
+{% block content %}
+      <div class="row">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">Configurations</h3>
+          </div>
+          <div class="panel-body">
+            <p>
+              <select id="configs" class="form-control">
+{% for name in configs %}
+                <option>{{ name }}</option>
+{% endfor %}
+              </select>
+            </p>
+            <p><div class="btn-group" role="group" aria-label="..."><button id="load_button" type="button" class="btn btn-default">Load selected configuration</button><button id="refresh_button" type="button" class="btn btn-success">Refresh parameters</button><button id="save_button" type="button" class="btn btn-info">Save current parameters</button></div>&nbsp;&nbsp;&nbsp;<div class="btn-group" role="group" aria-label="..."><button id="reboot_ros_button" type="button" class="btn btn-info">Reboot robot</button></div></p>
+          </div>
+        </div>
+        <div id="alerts">
+        </div>
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Robot parameters</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-striped">
+              <thead>
+                <tr><th>Node name</th><th>Parameter</th><th>Value</th></tr>
+              <tbody>
+    {% for param in params %}
+                <tr><td>{{ param.0 }}</td><td>{{ param.1 }}</td><td><input type="text" id="{{ param.0 }}___{{ param.1 }}" value="{{ param.2 }}" /></td></tr>
+    {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+
+{% block additional_javascripts %}
+		    <script>
+		      var old_value = "";
+          
+          var updates = {};
+          
+{% for param in params %}
+{% if loaded %}
+          updates.{{ param.0 }}___{{ param.1 }} = "{{ param.2 }}"
+{% endif %}
+          $("#{{ param.0 }}___{{ param.1 }}").focus(function () {
+            old_value = document.getElementById("{{ param.0 }}___{{ param.1 }}").value;
+          });
+          $("#{{ param.0 }}___{{ param.1 }}").blur(function () {
+            new_value = document.getElementById("{{ param.0 }}___{{ param.1 }}").value;
+            if (old_value != new_value) {
+              $("#{{ param.0 }}___{{ param.1 }}").css("background-color", "#0E0");
+              updates.{{ param.0 }}___{{ param.1 }} = new_value;
+            }
+          });
+{% endfor %}
+          $("#refresh_button").click(function () { $(location).attr('href', "/interface/setup/"); });
+          $("#load_button").click(function () { $(location).attr('href', "/interface/setup/" + document.getElementById('configs').value +"/"); });
+          
+          $("#save_button").click(function() { $.post( "/interface/setup/save/", updates, function( data ) {
+              if (data == "success") {
+                document.getElementById("alerts").innerHTML = '<div class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>Setting were saved successfully!</strong></div>';
+              }
+            } ); 
+          });
+          $("#reboot_ros_button").click(function() { $.post( "/interface/setup/reboot/", updates, function( data ) {
+              if (data == "rebooted") {
+                document.getElementById("alerts").innerHTML = '<div class="alert alert-success alert-dismissible" role="alert"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button><strong>ROS System was rebooted!</strong></div>';
+              }
+            } ); 
+          });
+		    </script>
+{% endblock %}

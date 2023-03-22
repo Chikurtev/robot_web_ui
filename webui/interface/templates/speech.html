@@ -1,0 +1,132 @@
+{% extends "base.html" %}
+
+{% block nav_speech %}class="active"{% endblock %}
+
+{% block title %}Speech | {% endblock %}
+
+{% block content %}
+      <div class="row">
+        <div class="panel panel-info">
+          <div class="panel-heading">
+            <h3 class="panel-title">Speak</h3>
+          </div>
+          <div class="panel-body">
+            <p><div class="btn-group" role="group" aria-label="...">
+              <button id="say_time_button" type="button" class="btn btn-success">Time</button>
+              <button id="say_weather_button" type="button" class="btn btn-success">Forecast</button>
+            </div>
+            </p>
+            <div>
+              <p>
+                <label for="comment">Text:</label>
+                <textarea class="form-control" rows="5" id="text"></textarea>
+              </p>
+              <p><div class="btn-group" role="group" aria-label="...">
+                   <button id="speak_button" type="button" class="btn btn-default">Speak text</button>
+                   <button id="save_button" type="button" class="btn btn-info">Save text</button>
+              </div></p>
+            </div>
+          </div>
+        </div>
+        <div id="alerts">
+        </div>
+        <div class="panel panel-primary">
+          <div class="panel-heading">
+            <h3 class="panel-title">Saved texts</h3>
+          </div>
+          <div class="panel-body">
+            <table class="table table-striped">
+              <thead>
+                <tr><th class="col-xs-9">Text</th><th class="col-xs-3">Action</th></tr>
+              <tbody>
+    {% for speech in speeches %}
+                <tr><td><span id="text_{{ speech.id }}">{{ speech.text }}</span></td><td><div class="btn-group" role="group" aria-label="..."><button id="remove_text_{{ speech.id }}_button" type="button" class="btn btn-danger">Remove saved text</button><button id="say_text_{{ speech.id }}_button" type="button" class="btn btn-success">Speak text</button></div></td></tr>
+    {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+
+{% block additional_javascripts %}
+		    <script src="/static/roslibjs/eventemitter2.min.js"></script>
+        <script src="/static/roslibjs/roslib.min.js"></script>
+        <script src="/static/simpleWeather/jquery.simpleWeather.min.js"></script>
+        <script src="/static/bootbox/bootbox.min.js"></script>
+		    <script>
+	        var ros = new ROSLIB.Ros();
+	        ros.connect('ws://{{ baseurl }}:9090');
+	        
+	        var speech = new ROSLIB.Topic({
+            ros : ros,
+            name : '/speech',
+            messageType : 'std_msgs/String'
+          });
+          
+          function send_string(str) {
+            var msg = new ROSLIB.Message({
+                data : str
+            });
+
+            speech.publish(msg);
+          }
+          $("#say_time_button").click(
+            function() {
+              var d = new Date();
+              send_string("В този момент часът е " + d.getHours() + " и " + d.getMinutes() + " минути.");
+            }
+          );
+          $("#speak_button").click(
+            function() {
+              send_string($("#text").val());
+            }
+          );
+          $("#say_weather_button").click(
+            function() {
+              $.simpleWeather({
+                location: 'Sofia, Bulgaria',
+                woeid: '',
+                unit: 'c',
+                success: function(weather) {
+                  send_string('В град София температурата в момента е '+weather.temp+' градуса. Скоростта на вятъра е '+Math.round(weather.wind.speed*5.0/18.0)+' метра в секунда.');
+                },
+                error: function(error) {
+                  console.log(error);
+                }
+              });
+            }
+          );
+          $("#save_button").click(
+            function() { 
+              if($("#text").val() == "") return;
+              $.post( "/interface/speech/save/", { 'text': $("#text").val() }, function( data ) {
+                if (data == "saved") {
+                  $(location).attr('href', "/interface/speech/");
+                }
+              } ); 
+            }
+          );
+{% for speech in speeches %}
+          $("#remove_text_{{ speech.id }}_button").click(
+            function() { 
+              bootbox.confirm("Are you sure?", function(result) {
+                if(result == true) {
+                  $.post( "/interface/speech/remove/", { 'id': '{{ speech.id }}' }, function( data ) {
+                    if (data == "removed") {
+                      $(location).attr('href', "/interface/speech/");
+                    }
+                  } );
+                }
+              }); 
+              
+            }
+          );
+          $("#say_text_{{ speech.id }}_button").click(
+            function() { 
+              send_string("{{ speech.text }}");
+            }
+          );
+{% endfor %}
+		    </script>
+{% endblock %}

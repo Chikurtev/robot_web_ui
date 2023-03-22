@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+
+{% block nav_navigation %}class="active"{% endblock %}
+
+{% block title %}Navigation | {% endblock %}
+
+{% block body_script %}onload="init()"{% endblock %}
+
+{% block content %}
+      <div class="row">
+        <div class="col-xs-8">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3 class="panel-title">Map</h3>
+            </div>
+            <div class="panel-body" id="map-panel">
+              <div id="nav"></div>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-4">
+          <div class="panel panel-success">
+            <div class="panel-heading">
+              <h3 class="panel-title">Camera</h3>
+            </div> 
+            <div class="panel-body">
+              <img class="img-responsive center-block" src="http://{{ baseurl }}:8080/stream?topic=/camera/rgb/image_color"/>
+            </div> 
+          </div>
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <h3 class="panel-title">Waypoints</h3>
+            </div>
+            <div class="panel-body">
+              <p>
+                <select id="waypoints" class="form-control">
+                  <option value="-1" selected="selected">Select waypoint...</option>
+{% for point in waypoints %}
+                  <option value="{{ point.id }}">{{ point.name }}</option>
+{% endfor %}
+                </select>
+              </p>
+              <p><div class="btn-group" role="group" aria-label="..."><button id="go_button" type="button" class="btn btn-success">Go</button><button id="delete_button" type="button" class="btn btn-danger">Delete</button></div>&nbsp;&nbsp;&nbsp;<div class="btn-group" role="group" aria-label="..."><button id="save_button" type="button" class="btn btn-info">Save position</button></div></p>
+            </div>
+          </div>
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <h3 class="panel-title">Info</h3>
+            </div>
+            <div class="panel-body">
+              <table class="col-xs-12">
+                <tr>
+                  <td>Battery voltage: <span id="battery_voltage">-</span> V</td>
+                  <td>Laptop battery: <span id="laptop_battery">-</td>
+                </tr>
+                <tr>
+                  <td>Wifi strength: <span id="wifi">-</span></td>
+                  <td>&nbsp;</td>
+                </tr>
+                <tr>
+                  <td>Position: (<span id="position_x">0</span>, <span id="position_y">1</span>)</td>
+                  <td>Heading: <span id="heading">11</span>&deg;</td>           
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+
+{% block additional_javascripts %}
+        <script src="/static/roslibjs/easeljs.min.js"></script>
+        <script src="/static/roslibjs/eventemitter2.min.js"></script>
+        <script src="/static/roslibjs/roslib.min.js"></script>
+        <script src="/static/roslibjs/ros2d.js"></script>
+        <script src="/static/roslibjs/nav2d.js"></script>
+		    <script>
+		      var waypoints = new Array();
+{% for point in waypoints %}
+          waypoints[{{ point.id }}] = {'x' : {{ point.x }}, 'y' : {{ point.y }}, 'theta' : {{ point.theta }} };
+{% endfor %}		    
+		      
+		      $("#save_button").click(function() { 
+	          var name = prompt("Waypoint name:", "");
+            if (name == null || name == "") {
+              alert('Invalid name!' + name);
+              return;
+            }
+	          $.post( "/interface/navigation/save/", {'x' : $("#position_x").text(), y :  $("#position_y").text(), 'theta' : $("#heading").text(), 'name' : name }, function( data ) {
+              if (data != "error") {
+                $('#waypoints').append( new Option(data.name, data.id, false, true) );
+                waypoints[data.id] = {'x' : parseFloat(data.x), 'y' : parseFloat(data.y), 'theta' : parseFloat(data.theta)};
+              }
+            } ); 
+          });
+		    
+		      $("#delete_button").click(function() {
+		        var selected = $("#waypoints").val();
+		        if (selected == -1) 
+		          return;
+		        if (!confirm("Confirm deletion of the selected waypoint?"))
+		          return;
+	          $.post( "/interface/navigation/remove/", {'id' : selected, y :  $("#position_y").text(), 'theta' : $("#heading").text(), 'name' : name }, function( data ) {
+              if (data != "error") {
+                $("#waypoints option[value='"+data+"']").remove();
+              }
+            } ); 
+          });
+          
+	        var ros = new ROSLIB.Ros();
+          	        
+	        // var laptop_state_listener = new ROSLIB.Topic({
+          //   ros : ros,
+          //   name : '/laptop_state',
+          //   messageType : 'codeass_driver/LaptopState'
+          // });
+
+          // laptop_state_listener.subscribe(function(message) {
+          //   $("#laptop_battery").text(message.battery);
+          //   $("#wifi").text(message.wifi_signal);
+          // });
+	        
+	        // var robot_state_listener = new ROSLIB.Topic({
+          //   ros : ros,
+          //   name : '/eddiebot_node/sensor_state',
+          //   messageType : 'eddiebot_node/EddiebotSensorState'
+          // });
+
+          // robot_state_listener.subscribe(function(message) {
+          //   $("#battery_voltage").text((message.voltage/1000).toFixed(2));                               
+          // });
+          
+          // Create the main viewer.
+          var viewer;
+
+          // Setup the nav client.
+          var nav;
+          
+          function onResize() {
+            var w = $('#map-panel').width();
+            var h = w * 0.7;
+            viewer.scene.canvas.width = w;
+            viewer.scene.canvas.height = h;
+            viewer.width = w;
+            viewer.height = h;
+            viewer.scene.scaleX = w / viewer.image_dim.w;
+            viewer.scene.scaleY = h / viewer.image_dim.h;
+            viewer.scene.x = 0;
+            viewer.scene.y = h;
+            nav.navigator.initScaleSet = false;
+          }
+          
+          window.onresize = function() { onResize(); }
+          $("#go_button").click(function() {
+            var selected = $("#waypoints").val();
+		        if (selected == -1) 
+		          return;
+		        waypointMarker.visible = false;
+		        var x = waypoints[selected].x;
+		        var y = waypoints[selected].y;
+		        var thetaRadians = waypoints[selected].theta * Math.PI / 180.0;
+		        var qz =  Math.sin(-thetaRadians/2.0);
+            var qw =  Math.cos(-thetaRadians/2.0);
+            var orientation = new ROSLIB.Quaternion({x:0, y:0, z:qz, w:qw});
+		        var pose = new ROSLIB.Pose({
+              position : new ROSLIB.Vector3({ x : x, y : y }),
+              orientation : orientation
+            });
+            // send the goal
+            nav.navigator.sendGoal(pose);
+          });
+          
+          var waypointMarker = new ROS2D.NavigationArrow({
+            size : 25,
+            strokeSize : 1,
+            fillColor : createjs.Graphics.getRGB(255, 0, 0, 0.66),
+            pulse : false
+          });
+          
+          $("#waypoints").change(function() {
+            var selected = $("#waypoints").val();
+            if (selected == -1) {
+              waypointMarker.visible = false;
+              return;
+            }
+            waypointMarker.x = waypoints[selected].x;
+            waypointMarker.y = -waypoints[selected].y;
+            waypointMarker.rotation = waypoints[selected].theta;
+            waypointMarker.scaleX = 1.0 / viewer.scene.scaleX;
+            waypointMarker.scaleY = 1.0 / viewer.scene.scaleY;
+            viewer.scene.setChildIndex(waypointMarker, viewer.scene.getNumChildren()-1);
+            waypointMarker.visible = true;
+          });
+          
+          function init() {
+            ros.connect('ws://{{ baseurl }}:9090');
+            
+            viewer = new ROS2D.Viewer({
+              divID : 'nav',
+              width : $('#map-panel').width(),
+              height : $('#map-panel').width() * 0.7
+            });            
+            
+            waypointMarker.visible = false;  
+            viewer.scene.addChild(waypointMarker);
+            
+            nav = new NAV2D.ImageMapClientNav({
+              ros : ros,
+              rootObject : viewer.scene,
+              viewer : viewer,
+              serverName : '/move_base',
+              image : '/static/map.png',
+              withOrientation : 'true'
+            });
+          }
+		    </script>
+{% endblock %}

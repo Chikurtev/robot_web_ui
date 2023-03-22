@@ -1,0 +1,7 @@
+[31mInvalid <arg> tag: eddiebot_description
+ROS path [0]=/opt/ros/kinetic/share/ros
+ROS path [1]=/home/robot/linorobot_ws/src
+ROS path [2]=/opt/ros/kinetic/share. 
+
+Arg xml is <arg default="$(find xacro)/xacro.py '$(find eddiebot_description)/robots/eddiebot.urdf.xacro'" name="urdf_file"/>[0m
+[31mThe traceback for the exception was written to the log file[0m

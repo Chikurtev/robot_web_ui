@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block nav_tracking %}class="active"{% endblock %}
+
+{% block title %}Tracking | {% endblock %}
+
+{% block content %}
+      <div class="row">
+        <div class="col-xs-8">
+          <div class="panel panel-primary">
+            <div class="panel-heading">
+              <h3 class="panel-title">Visual Tracker Info</h3>
+            </div>
+            <div class="panel-body">
+              <img class="img-responsive center-block" src="http://{{ baseurl }}:8080/stream?topic=/tracker_image&quality=40"/>
+            </div>
+          </div>
+          <div class="panel panel-info">
+            <div class="panel-heading">
+              <h3 class="panel-title">Kinect Tracker Info</h3>
+            </div>
+            <div class="panel-body">
+              <span id="kinect_feedback">This tracking is stopped.</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-xs-4">
+          <div class="panel panel-success">
+            <div class="panel-heading">
+              <h3 class="panel-title">Control</h3>
+            </div>
+            <div class="panel-body">
+              <div>
+                <p><button id="visual_button" type="button" class="btn btn-success">Start visual tracking</button></p>
+                <p><button id="kinect_button" type="button" class="btn btn-success">Start kinect tracking</button></p>
+                <p><button id="fall_button" type="button" class="btn btn-success">Start fall detection</button></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+{% endblock %}
+
+{% block additional_javascripts %}
+        <script src="/static/virtualjoystick/virtualjoystick.js"></script>
+        <script src="/static/roslibjs/eventemitter2.min.js"></script>
+        <script src="/static/roslibjs/roslib.min.js"></script>
+		    <script>
+	        var ros = new ROSLIB.Ros();
+	        ros.connect('ws://{{ baseurl }}:9090');
+	        
+	        var kinect_tracker_listener = new ROSLIB.Topic({
+            ros : ros,
+            name : '/kinect_tracker_status',
+            messageType : 'std_msgs/String'
+          });
+
+          kinect_tracker_listener.subscribe(function(message) {
+            $("#kinect_feedback").text(message.data);
+          });
+	        
+	        var tracking_status_listener = new ROSLIB.Topic({
+            ros : ros,
+            name : '/tracker_status',
+            messageType : 'std_msgs/String'
+          });
+
+          tracking_status_listener.subscribe(function(message) {
+            console.log(message.data);
+            if (message.data[0] == '1') {
+              $('#kinect_button').text('Stop kinect tracking');
+              $('#kinect_button').removeClass('btn-success');
+              $('#kinect_button').addClass('btn-danger');
+            } else {
+              $('#kinect_button').text('Start kinect tracking');
+              $('#kinect_button').addClass('btn-success');
+              $('#kinect_button').removeClass('btn-danger');
+            }
+            if (message.data[1] == '1') {
+              $('#visual_button').text('Stop visual tracking');
+              $('#visual_button').removeClass('btn-success');
+              $('#visual_button').addClass('btn-danger');
+            } else {
+              $('#visual_button').text('Start visual tracking');
+              $('#visual_button').addClass('btn-success');
+              $('#visual_button').removeClass('btn-danger');
+            }
+            if (message.data[2] == '1') {
+              $('#fall_button').text('Stop fall detection');
+              $('#fall_button').removeClass('btn-success');
+              $('#fall_button').addClass('btn-danger');
+            } else {
+              $('#fall_button').text('Start fall detection');
+              $('#fall_button').addClass('btn-success');
+              $('#fall_button').removeClass('btn-danger');
+            }
+          });
+          
+	        var control_pub = new ROSLIB.Topic({
+            ros : ros,
+            name : '/tracker_control',
+            messageType : 'std_msgs/String'
+          });
+            
+          var msg = new ROSLIB.Message({
+              data : "status"
+          });
+          control_pub.publish(msg);
+          
+          $("#fall_button").click(function() { 
+	          var msg = new ROSLIB.Message({
+              data : "fall"
+            });
+            control_pub.publish(msg);
+          });
+          
+          $("#visual_button").click(function() { 
+	          var msg = new ROSLIB.Message({
+              data : "color"
+            });
+            control_pub.publish(msg);
+          });
+          
+          $("#kinect_button").click(function() { 
+	          var msg = new ROSLIB.Message({
+              data : "kinect"
+            });
+            control_pub.publish(msg);
+          });
+		    </script>
+{% endblock %}

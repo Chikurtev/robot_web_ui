@@ -1,0 +1,102 @@
+				var MoverJointVel = new ROSLIB.Topic({
+            ros : ros,
+            name : '/CPRMoverJointVel',
+            messageType : 'sensor_msgs/JointState'
+          });
+          
+          function sendArmCommand(vel) {
+            var jointstate = new ROSLIB.Message({
+                  velocity : {
+											vel
+							}
+            });
+
+            MoverJointVel.publish(jointstate);
+
+            setTimeout(function(vel) {
+              var JointState = new ROSLIB.Message({
+                  velocity : {
+											vel=0
+								}
+              });
+
+              CPRMoverJointVel.publish(jointstate);
+            }, 1000); // duration of movement
+          }
+
+$('#arm_left_button').click(function() {
+              sendArmCommand[0.0; 0.0; 0.0; 0.0];
+            });
+            $('#arm_right_button').click(function() {
+              sendArmCommand[0.0; 0.0; 0.0; 0.0];
+            });
+						$('#arm_up_button').click(function() {
+              sendArmCommand[0.0; 0.0; 0.0; 0.0];
+            });
+						$('#arm_down_button').click(function() {
+              sendArmCommand[0.0; 0.0; 0.0; 0.0];
+            });
+						$('#arm_grasp_button').click(function() {
+              sendArmCommand[0.0; 0.0; 0.0; 0.0];
+            });
+						$('#arm_release_button').click(function() {
+              sendArmCommand[0.0; 0.0; 0.0; 0.0];
+						 });
+
+
+
+setTimeout(function(vel) {
+              var JointState = new ROSLIB.Message({
+                  velocity : {
+											vel : 0
+								}
+              });
+
+              MoverJointVel.publish(jointstate);
+            }, 1000); // duration of movement
+          }
+          
+
+
+
+
+
+						var MoverJointVel = new ROSLIB.Topic({
+            ros : ros,
+            name : '/CPRMoverJointVel',
+            messageType : 'sensor_msgs/JointState'
+          });
+          
+          function sendArmCommand(vel) ({
+            var jointstate = new ROSLIB.Message({
+                  velocity : vel
+            });
+
+            MoverJointVel.publish(jointstate);        
+          }, 500);
+				}
+
+
+$(function() { 
+							armvar=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            $('#forward_button').click(function() {       //base comands
+              sendButtonCommand(0.4,0);
+            });
+            $('#backward_button').click(function() {
+              sendButtonCommand(-0.4,0);
+            });
+            $('#left_button').click(function() {
+              sendButtonCommand(0,0.6);
+            });
+            $('#right_button').click(function() {
+              sendButtonCommand(0,-0.6);
+            });
+      			$('#arm_backward_button').click(function() {
+							              
+							armvar=[50.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+							sendArmCommand(armvar);
+            });
+            
+           
+          });
+

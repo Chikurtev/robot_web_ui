@@ -1,0 +1,724 @@
+{% extends "base.html" %} {% block nav_control %}class="active"{% endblock %} {% block title %}Control | {% endblock %} {% block content %}
+<div class="row">
+    <div class="col-xs-7">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <h3 class="panel-title">Robot Camera</h3>
+            </div>
+            <div class="panel-body">
+                <img class="img-responsive center-block" src="http://{{ baseurl }}:8080/stream?topic=/camera/color/image_raw"/>
+            </div>
+        </div>
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Mobile Base Control</h3>
+            </div>
+            <div class="panel-body">
+                <ul class="nav nav-pills">
+                    <li class="active"><a data-toggle="pill" href="#normalControls">Normal controls</a></li>
+                    <li><a data-toggle="pill" href="#cameraMouseControls">Camera mouse controls</a></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div id="normalControls" class="tab-pane fade in active">
+                        <p>
+                            <div class="btn-group" role="group" aria-label="...">
+                                <button id="forward_button" type="button" class="btn btn-default" style="font-size:24px">Forward <i class="fa fa-arrow-up"></i></button>
+                                <button id="left_button" type="button" class="btn btn-default" style="font-size:24px">Left <i class="fa fa-arrow-left"></i></button>
+                                <button id="right_button" type="button" class="btn btn-default" style="font-size:24px">Right <i class="fa fa-arrow-right"></i></button>
+                                <button id="backward_button" type="button" class="btn btn-default" style="font-size:24px">Backward <i class="fa fa-arrow-down"></i></button></p>
+                        </div>
+                        </p>
+
+                        <div>
+                            <p>Press the microphone icon </strong> and speak in Bulgarian: <br> </p>
+                            <input type="text" name="q" id="transcript" placeholder="Speak" />
+                            <img src="/static/mic_icon.png" style="width:64px;height:64px;" onclick="startDictation();"  />
+                            <!--microfon_gif: http://i.imgur.com/cHidSVu.gif-->
+                        </div>
+                    </div>
+                    <div id="cameraMouseControls" class="tab-pane fade">
+                        <br>
+                        <br>
+                        <table width="100%">
+                            <tr>
+                                <td colspan="3" align="center"><button class="camera-mouse" data-dx="0.4" data-dz="0.0" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Forward <i class="fa fa-arrow-up"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td align="center"><button class="camera-mouse" data-dx="0.0" data-dz="0.6" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;"><i class="fa fa-arrow-left"></i>Turn Left</button></td>
+                                <td align="center" style="width: 170px; font-size: 24px;"></td>
+                                <td align="center"><button class="camera-mouse" data-dx="0.0" data-dz="-0.6" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Turn Right <i class="fa fa-arrow-right"></i></button></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" align="center"><button class="camera-mouse" data-dx="-0.4" data-dz="0.0" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Backward <i class="fa fa-arrow-down"></i></button></td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+
+
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Arm Control</h3>
+            </div>
+            <div class="panel-body">
+              <ul class="nav nav-pills">
+                  <li class="active"><a data-toggle="pill" href="#normalArmControls">Normal controls</a></li>
+                  <li><a data-toggle="pill" href="#cameraMouseArmControls">Camera mouse controls</a></li>
+              </ul>
+
+              <div class="tab-content">
+                  <div id="normalArmControls" class="tab-pane fade in active">
+                    <meta name="viewport" content="width=device-width, initial-scale=1">
+                    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+                    <p>
+                        <div class="btn-group" role="group" aria-label="...">
+                            <button id="connect_button" type="button" class="btn btn-default" style="font-size:24px">connect </button>
+                            <button id="reset_button" type="button" class="btn btn-default" style="font-size:24px">reset </button>
+                            <button id="enable_button" type="button" class="btn btn-default" style="font-size:24px">enable </button>
+                            <button id="joint0_plus_button" type="button" class="btn btn-default" style="font-size:24px">joint0_plus </button>
+                            <button id="joint0_minus_button" type="button" class="btn btn-default" style="font-size:24px">joint0_minus </button>
+                            <button id="joint1_plus_button" type="button" class="btn btn-default" style="font-size:24px">joint1_plus </button>
+                            <button id="joint1_minus_button" type="button" class="btn btn-default" style="font-size:24px">joint1_minus </button>
+                            <button id="joint2_plus_button" type="button" class="btn btn-default" style="font-size:24px">joint2_plus </button>
+                            <button id="joint2_minus_button" type="button" class="btn btn-default" style="font-size:24px">joint2_minus </button>
+                            <button id="joint3_plus_button" type="button" class="btn btn-default" style="font-size:24px">joint3_plus </button>
+                            <button id="joint3_minus_button" type="button" class="btn btn-default" style="font-size:24px">joint3_minus </button>
+                            <button id="gripper_close_button" type="button" class="btn btn-default" style="font-size:24px">Close Gripper </button>
+                            <button id="gripper_open_button" type="button" class="btn btn-default" style="font-size:24px">Open Gripper </button></p>
+
+                            <button id="up" type="button" class="btn btn-default" style="font-size:24px">Up </button></p>
+                            <button id="down" type="button" class="btn btn-default" style="font-size:24px">Down </button></p>
+                            <button id="left" type="button" class="btn btn-default" style="font-size:24px">Left </button></p>
+                            <button id="right" type="button" class="btn btn-default" style="font-size:24px">Right </button></p>
+                            <button id="forward" type="button" class="btn btn-default" style="font-size:24px">Forward </button></p>
+                            <button id="backward" type="button" class="btn btn-default" style="font-size:24px">Backward </button></p>
+                        </div>
+                  </div>
+                  <div id="cameraMouseArmControls" class="tab-pane fade">
+                    <br>
+                    <br>
+                    <table width="100%">
+                        <tr>
+                          <td align="center"><button class="arm-camera-mouse" data-move="up" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Up</button></td>
+                          <td align="center"><button class="arm-camera-mouse" data-move="left" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Left</button></td>
+                          <td align="center"><button class="arm-camera-mouse" data-move="forward" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Forward</button></td>
+                        </tr>
+                        <tr>
+                          <td align="center"><button class="arm-camera-mouse" data-move="down" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Down</button></td>
+                          <td align="center"><button class="arm-camera-mouse" data-move="right" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Right</button></td>
+                          <td align="center"><button class="arm-camera-mouse" data-move="backward" type="button" class="btn btn-default" style="width: 170px; font-size: 32px;">Backward</button></td>
+                        </tr>
+                    </table>
+                  </div>
+                </div>
+            </div>
+        </div>
+        <!--
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Info</h3>
+            </div>
+            <div class="panel-body">
+                <table class="col-xs-12">
+                    <tr>
+                        <td>Battery Voltage: <span id="battery_voltage">-</span> V</td>
+                        <td>Laptop battery: <span id="laptop_battery">-</span> </td>
+                        <td>Wifi strength: <span id="wifi">-</span></td>
+                    </tr>
+                    <tr>
+                        <td>Sonar1: <span id="sonar1">-</span> cm</td>
+                        <td>Sonar2: <span id="sonar2">-</span> cm</td>
+                        <td>Heading: <span id="heading">-</span>&deg;</td>
+                    </tr>
+                    <tr>
+                        <td>Infrared1: <span id="infrared1">-</span> cm</td>
+                        <td>Infrared2: <span id="infrared2">-</span> cm</td>
+                        <td>Infrared3: <span id="infrared3">-</span> cm</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        -->
+    </div>
+
+    <div class="col-xs-5">
+        <div class="panel panel-success">
+            <div class="panel-heading">
+                <h3 class="panel-title">Joystick</h3>
+            </div>
+            <div class="panel-body" id="joystick-panel">
+                <div id="joystick-container"></div>
+                <span id="result"></span>
+            </div>
+        </div>
+        <!--
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">My Camera</h3>
+            </div>
+            <div class="panel-body">
+                <!---<input class="btn" type="button" id="call_but" value="Call" disabled><br>-->
+        <video id="self_view" class="img-responsive center-block" autoplay muted></video>
+        <video id="remote_view" style="visibility: hidden;" autoplay></video>
+    </div>
+</div>
+</div>
+{% endblock %} {% block additional_javascripts %}
+<script src="/static/virtualjoystick/virtualjoystick.js"></script>
+<script src="/static/roslibjs/eventemitter2.min.js"></script>
+<script src="/static/roslibjs/roslib.min.js"></script>
+<script>
+    var ros = new ROSLIB.Ros();
+    ros.connect('ws://{{ baseurl }}:9090');
+
+    /*
+    var laptop_state_listener = new ROSLIB.Topic({
+        ros: ros,
+        name: '/laptop_state',
+        messageType: 'codeass_driver/LaptopState'
+    });
+
+    laptop_state_listener.subscribe(function(message) {
+        $("#laptop_battery").text(message.battery);
+        $("#wifi").text(message.wifi_signal);
+    });
+
+    var robot_state_listener = new ROSLIB.Topic({
+        ros: ros,
+        name: '/eddiebot_node/sensor_state',
+        messageType: 'eddiebot_node/EddiebotSensorState'
+    });
+
+    robot_state_listener.subscribe(function(message) {
+        $("#battery_voltage").text((message.voltage / 1000).toFixed(2));
+        $("#infrared1").text(message.cliff_front_left_signal); //infrared1);
+        $("#infrared2").text(message.cliff_front_right_signal); //infrared2);
+        $("#infrared3").text(message.cliff_right_signal); //infrared3);
+        $("#sonar1").text(message.wall_signal); //sonar1);
+        $("#sonar2").text(message.cliff_left_signal); //sonar2);
+        $("#heading").text(message.angle);
+    });
+    */
+
+    var cmdVel = new ROSLIB.Topic({
+        ros: ros,
+        name: '/cmd_vel',
+        messageType: 'geometry_msgs/Twist'
+    });
+
+    var deadzone = 10;
+
+    var stop_sent = false;
+
+    function send_command(dx, dy) {
+        if (dx < deadzone && dx > -deadzone)
+            dx = 0;
+
+        if (dy < deadzone && dy > -deadzone)
+            dy = 0;
+
+        if (dx == 0 && dy == 0) {
+            if (stop_sent)
+                return;
+            else
+                stop_sent = true;
+        } else {
+            stop_sent = false;
+        }
+
+        var twist = new ROSLIB.Message({
+            linear: {
+                x: dy / 100.0,
+                y: 0,
+                z: 0
+            },
+            angular: {
+                x: 0,
+                y: 0,
+                z: dx / 100.0
+            }
+        });
+
+        cmdVel.publish(twist);
+    }
+
+    function sendButtonCommand(dx, dz) {
+        var twist = new ROSLIB.Message({
+            linear: {
+                x: dx,
+                y: 0,
+                z: 0
+            },
+            angular: {
+                x: 0,
+                y: 0,
+                z: dz
+            }
+        });
+
+        cmdVel.publish(twist);
+
+        setTimeout(function() {
+            var twist = new ROSLIB.Message({
+                linear: {
+                    x: 0,
+                    y: 0,
+                    z: 0
+                },
+                angular: {
+                    x: 0,
+                    y: 0,
+                    z: 0
+                }
+            });
+
+            cmdVel.publish(twist);
+        }, 5000); // duration of movement
+    }
+
+    var MoverCommands = new ROSLIB.Topic({
+        ros: ros,
+        name: '/CPRMoverCommands',
+        messageType: 'std_msgs/String'
+    });
+
+    function sendCommand(command) {
+        var connect_command = new ROSLIB.Message({
+            data: command
+        });
+        MoverCommands.publish(connect_command);
+
+    }
+
+    var MoverJointVel = new ROSLIB.Topic({
+        ros: ros,
+        name: '/CPRMoverJointVel',
+        messageType: 'sensor_msgs/JointState'
+    });
+
+    function sendArmCommand(vel) {
+        var jointstate = new ROSLIB.Message({
+            velocity: vel
+        });
+        MoverJointVel.publish(jointstate);
+        
+        setTimeout(function() {
+        var jointstate = new ROSLIB.Message({
+            velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+        });
+        MoverJointVel.publish(jointstate);
+        }, 3000);   
+    }
+
+    /*var MoverSpeech = new ROSLIB.Topic({
+        ros: ros,
+        name: '/arm_voice_control/voice_command',
+        messageType: 'std_msgs/String'
+    });
+
+    function armSpeech(phrase) {
+        var voice_command = new ROSLIB.Message({
+            data: phrase
+        });
+        MoverSpeech.publish(voice_command);
+    } */
+
+    // button function on click or hold
+    $(function() {
+
+        $('#forward_button').click(function() { //base comands
+            sendButtonCommand(0.6, 0);
+        });
+        $('#backward_button').click(function() {
+            sendButtonCommand(-0.6, 0);
+        });
+        $('#left_button').click(function() {
+            sendButtonCommand(0, 0.8);
+        });
+        $('#right_button').click(function() {
+            sendButtonCommand(0, -0.8);
+        });
+        $('#connect_button').click(function() { //arm commands for connection
+            sendCommand("Connect");
+        });
+        $('#reset_button').click(function() {
+            sendCommand("Reset");
+        });
+        $('#enable_button').click(function() {
+            sendCommand("Enable");
+        });
+        $('#gripper_open_button').click(function() {
+            sendCommand("GripperOpen");
+        });
+        $('#gripper_close_button').click(function() {
+            sendCommand("GripperClose");
+        });
+
+        // camera mouse buttons
+        $('button.camera-mouse').mouseover(function() {
+            var twist = new ROSLIB.Message({
+                linear: {
+                    x: parseFloat($(this).attr('data-dx')),
+                    y: 0,
+                    z: 0
+                },
+                angular: {
+                    x: 0,
+                    y: 0,
+                    z: parseFloat($(this).attr('data-dz'))
+                }
+            });
+
+            cmdVel.publish(twist);
+        });
+        $('button.camera-mouse').mouseout(function() {
+            var twist = new ROSLIB.Message({
+                linear: {
+                    x: 0,
+                    y: 0,
+                    z: 0
+                },
+                angular: {
+                    x: 0,
+                    y: 0,
+                    z: 0
+                }
+            });
+
+            cmdVel.publish(twist);
+        });
+
+        var armMovements = {
+          forward:  [0.0, 50.0, -50.0, 0.0, 0.0, 0.0],
+          backward: [0.0, -50.0, 50.0, 0.0, 0.0, 0.0],
+          left:     [50.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+          right:    [-50.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+          up:       [0.0, 0.0, -50.0, 50.0, 0.0, 0.0],
+          down:     [0.0, 0.0, 50.0, -50.0, 0.0, 0.0]
+        };
+
+        $('button.arm-camera-mouse').mouseover(function() {
+          var jointstate = new ROSLIB.Message({
+            velocity: armMovements[$(this).attr('data-move')]
+          });
+          MoverJointVel.publish(jointstate);
+        });
+
+        $('button.arm-camera-mouse').mouseout(function() {
+          var jointstate = new ROSLIB.Message({
+            velocity: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+          });
+          MoverJointVel.publish(jointstate);
+        });
+    });
+
+
+
+    $(function arm_control() {
+        //armvar=[0.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+        var timeOut = 0;
+
+        $('#joint0_plus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [50.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log($(this));
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //armvar = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]; !!!!! ot tuk moje da se izprati nulira6ta za rukata
+            //sendArmCommand(armvar);
+            //i = 0;
+        });
+
+        $('#joint0_minus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [-50.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#joint1_plus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, 50.0, 0.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#joint1_minus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, -50.0, 0.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#joint2_plus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, 0.0, 50.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#joint2_minus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, 0.0, -50.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#joint3_plus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, 0.0, 0.0, 50.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#joint3_minus_button').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, 0.0, 0.0, -50.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#up').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, -50.0, -50.0, 100.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#down').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, 50.0, 50.0, -100.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#forward').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, 50.0, -50.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#backward').on('mousedown touchstart', function arm_control() {
+            armvar = [0.0, -50.0, 50.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#right').on('mousedown touchstart', function arm_control() {
+            armvar = [-50.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+        $('#left').on('mousedown touchstart', function arm_control() {
+            armvar = [50.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            $(this).addClass('active');
+            timeOut = setInterval(function() {
+                //console.log(i++);
+                sendArmCommand(armvar);
+            }, 50);
+        }).bind('mouseup mouseleave touchend', function() {
+            $(this).removeClass('active');
+            clearInterval(timeOut);
+            //i = 0;
+        });
+
+    });
+
+
+    function startDictation() {
+        if (window.hasOwnProperty('webkitSpeechRecognition')) {
+            var recognition = new webkitSpeechRecognition();
+            recognition.continuous = false;
+            recognition.interimResults = false;
+            recognition.lang = "bg-BG";
+            //recognition.lang = "en-EN";
+            recognition.start();
+            recognition.onresult = function(e) {
+                document.getElementById('transcript').value = e.results[0][0].transcript;
+                speechStringVar = document.getElementById('transcript').value;
+                recognition.stop();
+                checkCommand(speechStringVar);
+            };
+            recognition.onerror = function(e) {
+                recognition.stop();
+            };
+        }
+    }
+
+
+    function checkCommand(str) {
+        if (str.includes("ръката") && str.includes("напред")) {
+            armvar = [0.0, 50.0, -50.0, 0.0, 0.0, 0.0];
+            sendArmCommand(armvar);
+        } else if (str.includes("ръката") && str.includes("назад")) {
+            armvar = [0.0, -50.0, 50.0, 0.0, 0.0, 0.0];
+            sendArmCommand(armvar);
+        } else if (str.includes("ръката") && str.includes("наляво")) {
+            armvar = [50.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            sendArmCommand(armvar);
+        } else if (str.includes("ръката") && str.includes("надясно")) {
+            armvar = [-50.0, 0.0, 0.0, 0.0, 0.0, 0.0];
+            sendArmCommand(armvar);
+        } else if (str.includes("ръката нагоре")) {
+            armvar = [0.0, 0.0, -50.0, 50.0, 0.0, 0.0];
+            sendArmCommand(armvar);
+        } else if (str.includes("ръката надолу")) {
+            armvar = [0.0, 0.0, 50.0, -50.0, 0.0, 0.0];
+            sendArmCommand(armvar);
+        } else if (str.includes("робот") && str.includes("напред")) {
+            sendButtonCommand(0.6, 0);
+        } else if (str.includes("робот") && str.includes("назад")) {
+            sendButtonCommand(-0.6, 0);
+        } else if (str.includes("робот") && str.includes("наляво")) {
+            sendButtonCommand(0, 1);
+        } else if (str.includes("робот") && str.includes("надясно")) {
+            sendButtonCommand(0, -1);
+        } else if (str.includes("включване на ръката")) {
+            sendCommand("Connect");
+        } else if (str.includes("рестартиране на ръката")) {
+            sendCommand("Reset");
+        } else if (str.includes("пускане на ръката")) {
+            sendCommand("Enable");
+        } else if (str.includes("хвани")) {
+            sendCommand("GripperClose");
+        } else if (str.includes("пусни")) {
+            sendCommand("GripperOpen");
+        } 
+    }
+
+
+    var joystick = null;
+
+    function onWindowResize() {
+        var jpw = $('#joystick-panel').width();
+        console.log("width", jpw, $('#joystick-container').offset().top + jpw / 2);
+        $('#joystick-container').css({
+            'height': jpw + 'px',
+            'width': jpw + 'px'
+        });
+
+        if (joystick)
+            joystick.destroy();
+        joystick = new VirtualJoystick({
+            container: document.getElementById('joystick-container'),
+            top: $('#joystick-container').offset().top,
+            left: $('#joystick-container').offset().left,
+            mouseSupport: true,
+            stationaryBase: true,
+            baseX: $('#joystick-container').offset().left + jpw / 2,
+            baseY: $('#joystick-container').offset().top + jpw / 2,
+            strokeStyle: 'black',
+            limitStickTravel: true,
+            stickRadius: jpw
+        });
+    }
+
+    onWindowResize();
+    window.addEventListener('resize', onWindowResize, false);
+
+    setInterval(function() {
+        var outputEl = document.getElementById('result');
+
+        var dx = joystick.deltaXpercent();
+        var dy = joystick.deltaYpercent();
+
+        send_command(-dx, -dy);
+
+        outputEl.innerHTML = ' dx:' + dx + '%' +
+            ' dy:' + dy + '%' +
+            (joystick.right() ? ' right' : '') +
+            (joystick.up() ? ' up' : '') +
+            (joystick.left() ? ' left' : '') +
+            (joystick.down() ? ' down' : '')
+    }, 1 / 30 * 1000);
+</script>
+<script src="/static/webrtc/signaling_channel.js"></script>
+<script src="/static/webrtc/main.js"></script>
+{% endblock %}

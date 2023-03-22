@@ -1,0 +1,61 @@
+<launch>
+
+  <include file="$(find freenect_launch)/launch/freenect.launch" />
+  
+  <param name="/use_sim_time" value="false" />
+
+  <arg default="$(find xacro)/xacro.py '$(find eddiebot_description)/robots/eddiebot.urdf.xacro'" name="urdf_file" />
+  <param command="$(arg urdf_file)" name="robot_description" />
+
+  <param name="robot/name" value="$(optenv ROBOT eddiebot)" />
+  <param name="robot/type" value="eddiebot" />
+  
+  <node args="--respawnable" name="eddiebot_node" output="screen" pkg="eddiebot_node" respawn="true" type="eddiebot_node.py">
+    <param name="bonus" value="false" />
+    <param name="update_rate" value="30.0" />
+    <param name="max_acceleration_cm_per_sec_square" value="25" />
+    <param name="max_linear_speed_m_per_sec" value="0.25" />
+    <param name="max_slow_speed_m_per_sec" value="0.125" />
+    <param name="max_angular_speed_deg_per_sec" value="60" />
+    <param name="slow_speed_distance_cm" value="150" />
+    <param name="stop_distance_cm" value="40" />
+    <param name="check_distance_sensors" value="0" />
+  </node>
+ 
+  <node name="robot_state_publisher" output="screen" pkg="robot_state_publisher" type="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="5.0" />
+  </node>
+  
+  <node name="diagnostic_aggregator" pkg="diagnostic_aggregator" type="aggregator_node">
+    <rosparam command="load" file="$(find eddiebot_bringup)/config/diagnostics.yaml" />
+  </node>
+  
+  <node name="robot_pose_publisher" pkg="robot_pose_publisher" type="robot_pose_publisher" />
+  
+  <node name="eddiebot_joy" pkg="eddiebot_joy" type="eddiebot_joy">
+    <param name="scale_angular" value="1" />
+    <param name="scale_linear" value="0.5" />
+    <param name="axis_deadman" value="4" />
+    <param name="axis_linear" value="4" />
+    <param name="axis_angular" value="3" />
+    <param name="joystick_dead_zone" value="0.2" />
+    <remap from="eddiebot_joy/cmd_vel" to="cmd_vel" />
+    <remap from="eddiebot_joy/emergency_stop" to="emergency_stop" />
+  </node>
+
+  <node name="joystick" pkg="joy" type="joy_node" />
+
+
+  <node name="rosbridge_websocket" pkg="rosbridge_server" respawn="true" type="rosbridge_websocket">
+    <param name="authenticate" value="false" />
+    <param name="port" value="9090" />
+    <param name="address" value="" />
+  </node>
+
+  <node name="web_video_server" pkg="web_video_server" type="web_video_server">
+    <param name="port" value="8080" />
+  </node>
+
+
+
+</launch>

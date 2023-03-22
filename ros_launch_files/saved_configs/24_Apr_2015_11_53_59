@@ -1,0 +1,48 @@
+<launch>
+  
+  <node name="driver" output="screen" pkg="codeass_driver" respawn="true" type="driver.py">
+    <param name="refresh_rate" value="50" />
+    <param name="port" value="/dev/ttyUSB0" />
+    <param name="baudrate" value="115200" />
+    <param name="serial_timeout" value="2" />
+    <param name="max_acceleration_cm_per_sec_square" value="5" />
+    <param name="max_linear_speed_m_per_sec" value="1" />
+    <param name="max_slow_speed_m_per_sec" value="0.3" />
+    <param name="max_angular_speed_deg_per_sec" value="40" />
+    <param name="slow_speed_distance_cm" value="150" />
+    <param name="stop_distance_cm" value="40" />
+    <param name="check_distance_sensors" value="1" />
+  </node>
+  
+  <node name="laptop_status" pkg="codeass_driver" type="laptop_state.py">
+    <param name="refresh_rate" value="0.1" />
+  </node>
+  
+  <node name="rosbridge_websocket" pkg="rosbridge_server" respawn="true" type="rosbridge_websocket">
+    <param name="authenticate" value="false" />
+    <param name="port" value="9090" />
+    <param name="address" value="" />
+  </node>
+  
+  <node name="usb_cam_node" pkg="usb_cam" type="usb_cam_node">
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="640" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="uyvy" />
+  </node>
+  
+  <node name="web_video_server" pkg="web_video_server" type="web_video_server">
+    <param name="port" value="8080" />
+    <param name="server_threads" value="1" />
+    <param name="ros_threads" value="2" />
+  </node>
+  
+  <node name="speech" pkg="simple_speech" type="simple_speech.py">
+    <param name="language" value="bg" />
+    <param name="pitch" value="50" />
+    <param name="amplitude" value="100" />
+    <param name="speed" value="150" />
+    <param name="gap" value="15" />
+  </node>
+  
+</launch>

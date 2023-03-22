@@ -1,0 +1,29 @@
+<launch>
+
+  <node name="rosbridge_websocket" output="screen" pkg="rosbridge_server" type="rosbridge_websocket">
+    <param name="authenticate" value="false" />
+    <param name="port" value="9090" />
+    <param name="address" value="" />
+  </node>
+  
+  <node name="rosapi" pkg="rosapi" type="rosapi" />
+    
+  <node name="usb_cam_node" pkg="usb_cam" type="usb_cam_node">
+    <param name="video_device" value="/dev/video0" />
+    <param name="image_width" value="6401" />
+    <param name="image_height" value="480" />
+    <param name="pixel_format" value="mjpeg" />
+  </node>
+  
+  <node name="web_video_server" pkg="web_video_server" type="web_video_server">
+    <param name="port" value="8080" />
+    <param name="server_threads" value="1" />
+    <param name="ros_threads" value="2" />
+  </node>
+    
+  <node args="--respawnable" name="eddiebot_node" output="screen" pkg="eddiebot_node" respawn="true" type="eddiebot_node.py">
+    <param name="bonus" value="false" />
+    <param name="update_rate" value="30.0" />
+  </node>  
+
+</launch>

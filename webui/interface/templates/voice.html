@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block nav_voice %}class="active"{% endblock %}
+
+{% block title %}Voice | {% endblock %}
+
+{% block content %}
+
+<!-- CSS Styles -->
+        <h1  id="MyHead1" style="color:blue; font-weight: bold; font-size:28pt; 
+             font-family: courier; " >voice command</h1>
+
+        <p style="font-size:16pt;  font-family: courier;"> <strong>
+    <!--      Press the microphone icon </strong> and speak in Bulgarian: <br> </p>  #BG -->
+              Press the microphone icon </strong> and speak in English: <br> </p>
+        
+   	
+            <div class="speech">
+                <input type="text" name="q" id="transcript" placeholder="Speak" />
+                <img onclick="startDictation();" src="http://i.imgur.com/cHidSVu.gif" />
+            </div>
+
+{% endblock %}
+
+{% block additional_javascripts %}
+<script src="/static/roslibjs/eventemitter2.min.js"></script>
+<script src="/static/roslibjs/roslib.min.js"></script>
+<script>
+  var ros = new ROSLIB.Ros();
+	ros.connect('ws://{{ baseurl }}:9090');
+
+  function startDictation() {
+    if (window.hasOwnProperty('webkitSpeechRecognition')) {
+      var recognition = new webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = "bg-BG";
+      recognition.lang = "en-EN";
+      recognition.start();
+      recognition.onresult = function(e) {
+        document.getElementById('transcript').value = e.results[0][0].transcript;
+        speechStringVar = document.getElementById('transcript').value;
+        recognition.stop();
+        checkCommand(speechStringVar);
+       };			
+       recognition.onerror = function(e) {
+         recognition.stop();
+       };
+    }
+  } 
+
+	var cmdVel = new ROSLIB.Topic({
+    ros : ros,
+    name : '/cmd_vel',
+    messageType : 'geometry_msgs/Twist'
+  });
+
+  function sendButtonCommand(dx, dz) {
+    var twist = new ROSLIB.Message({
+      linear : {
+        x : dx,
+        y : 0,
+        z : 0
+      },
+      angular : {
+        x : 0,
+        y : 0,
+        z : dz
+      }
+    });
+
+    cmdVel.publish(twist);
+
+    setTimeout(function() {
+      var twist = new ROSLIB.Message({
+        linear : {
+          x : 0,
+          y : 0,
+          z : 0
+        },
+        angular : {
+          x : 0,
+          y : 0,
+          z : 0
+        }
+      });
+
+      cmdVel.publish(twist);
+    }, 1000); // duration of movement
+  }
+
+	
+	function checkCommand(str) {
+	  if(str.includes("направо")) {
+      sendButtonCommand(1, 1);
+  }  else if(str.includes("назад")) {
+      sendButtonCommand(2,2);
+  }else if(str.includes("наляво")) {
+          sendButtonCommand(3,3);
+      } else if(str.includes("надясно")) {
+          sendButtonCommand(4,4);
+      }
+  }
+
+	
+
+
+
+
+
+
+</script>
+{% endblock %}
